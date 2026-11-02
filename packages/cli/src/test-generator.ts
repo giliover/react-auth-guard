@@ -29,10 +29,10 @@ try {
 
   // 4. Geração de Código
   const generator = new CodeGenerator(ast);
-  const { authProviderCode, appRoutesCode } = generator.generate();
+  const { authTypesCode, appRoutesCode } = generator.generate();
 
   console.log("\n--- [1] AuthProvider.tsx Gerado ---");
-  console.log(authProviderCode);
+  console.log(authTypesCode);
 
   console.log("\n--- [2] AppRoutes.tsx Gerado ---");
   console.log(appRoutesCode);
