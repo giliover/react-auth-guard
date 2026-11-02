@@ -1,0 +1,18 @@
+{
+  "name": "react-auth",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Autenticação Segura usando React",
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
+  "scripts": {
+    "build:cli": "npm run build --workspace=@react-auth/cli",
+    "build:runtime": "npm run build --workspace=@react-auth/core-runtime",
+    "build": "npm run build:runtime && npm run build:cli"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

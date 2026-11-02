@@ -1,0 +1,17 @@
+{
+  "name": "@react-auth/cli",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "bin": {
+    "react-auth": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "commander": "^11.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  }
+}
