@@ -3,14 +3,13 @@
 import { Command } from "commander";
 import { compileCommand } from "./commands/compile.js";
 import { initCommand } from "./commands/init.js";
+import { secureBuildCommand } from "./commands/secureBuild.js";
 
 const program = new Command();
 
 program
   .name("react-auth")
-  .description(
-    "CLI de Autenticação Orientada a Perfis para React",
-  )
+  .description("CLI de Autenticação Orientada a Perfis para React")
   .version("1.0.0");
 
 program
@@ -32,10 +31,29 @@ program
   .option(
     "-o, --output <dir>",
     "Diretório de saída para os arquivos gerados",
-    "src/generated",
+    "src/routes-rbac",
   )
   .action((options) => {
     compileCommand(options.input, options.output);
+  });
+
+program
+  .command("secure-build")
+  .description(
+    "Criptografa os chunks estáticos gerados no build e remove os JS brutos",
+  )
+  .option(
+    "-b, --build-dir <dir>",
+    "Diretório dos arquivos estáticos de build",
+    "build/static/js",
+  )
+  .option(
+    "-i, --input <path>",
+    "Arquivo de política DSL (.auth)",
+    "security.auth",
+  )
+  .action((options) => {
+    secureBuildCommand(options.buildDir, options.input);
   });
 
 program.parse(process.argv);

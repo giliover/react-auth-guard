@@ -35,13 +35,12 @@ export type AppRole = 'PUBLIC' | ${profileUnion};
       .map((route) => this.buildRouteJSX(route))
       .join("\n");
 
-    return `// ARQUIVO GERADO AUTOMATICAMENTE VIA @react-auth/cli - NÃO EDITAR DIRETA MENTE
-import React, { lazy, Suspense } from 'react';
+    return `import React, { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { ProtectedRoute, AuthProvider } from '@react-auth/core-runtime';
+import { EncryptedProtectedRoute, AuthProvider } from '@react-auth/core-runtime';
 import { AppRole } from './authTypes';
 
-const LoadingFallback = () => <div className="auth-loading">Carregando módulo...</div>;
+const LoadingFallback = () => <div className="auth-loading">Carregando...</div>;
 
 export function AppRoutes() {
   return (
@@ -58,13 +57,7 @@ ${routeDeclarations}
   }
 
   private buildRouteJSX(route: RouteNode): string {
-    const moduleName =
-      route.path
-        .replace(/^\//, "")
-        .split("/")
-        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-        .join("") || "Home";
-
+    const moduleName = this.getModuleName(route.path);
     const modulePath = `../modules/${moduleName}`;
 
     if (route.isPublic) {
@@ -81,18 +74,26 @@ ${routeDeclarations}
     const rolesArray = route.allowedRoles
       .map((r) => `'${r}' as AppRole`)
       .join(", ");
-    const chunkComment = route.chunkName
-      ? `/* webpackChunkName: "protected-${route.chunkName}" */ `
-      : "";
+    const chunkFileName = `protected-${route.chunkName}.chunk.enc`;
 
     return `          <Route
             path="${route.path}"
             element={
-              <ProtectedRoute
+              <EncryptedProtectedRoute
                 allowedRoles={[${rolesArray}]}
-                factory={() => import(${chunkComment}'${modulePath}')}
+                chunkUrl="/static/js/${chunkFileName}"
               />
             }
           />`;
+  }
+
+  private getModuleName(routePath: string): string {
+    return (
+      routePath
+        .replace(/^\//, "")
+        .split("/")
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join("") || "Home"
+    );
   }
 }

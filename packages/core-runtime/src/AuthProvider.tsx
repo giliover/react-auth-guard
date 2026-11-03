@@ -24,6 +24,8 @@ export function AuthProvider({
     return allowedRoles.includes(role);
   };
 
+  if (!window.React) window.React = React;
+
   return (
     <AuthContext.Provider
       value={{ role, setRole, keys, setKeys, setAuth, getRoleKey, hasRole }}
