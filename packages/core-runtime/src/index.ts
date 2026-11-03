@@ -1,3 +1,3 @@
 export * from "./types/index.js";
 export * from "./AuthProvider.js";
-export * from "./ProtectedRoute.js";
+export * from "./EncryptedProtectedRoute.js";
