@@ -37,7 +37,7 @@ export type AppRole = 'PUBLIC' | ${profileUnion};
 
     return `import React, { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { EncryptedProtectedRoute, AuthProvider } from '@react-auth/core-runtime';
+import { DynamicProtectedRoute, AuthProvider } from '@react-auth/core-runtime';
 import { AppRole } from './authTypes';
 
 const LoadingFallback = () => <div className="auth-loading">Carregando...</div>;
@@ -71,17 +71,11 @@ ${routeDeclarations}
           />`;
     }
 
-    const rolesArray = route.allowedRoles
-      .map((r) => `'${r}' as AppRole`)
-      .join(", ");
-    const chunkFileName = `protected-${route.chunkName}.chunk.enc`;
-
     return `          <Route
             path="${route.path}"
             element={
-              <EncryptedProtectedRoute
-                allowedRoles={[${rolesArray}]}
-                chunkUrl="/static/js/${chunkFileName}"
+              <DynamicProtectedRoute
+                chunkName="${route.chunkName}"
               />
             }
           />`;

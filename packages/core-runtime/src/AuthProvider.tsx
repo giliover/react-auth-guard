@@ -1,44 +1,71 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { AuthContextType, AuthProviderProps, UserRole } from "./types/index.js";
+// packages/core-runtime/src/AuthProvider.tsx
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export interface UserAuthContextType {
+  token: string | null;
+  userRoles: string[];
+  isAuthenticated: boolean;
+  login: (token: string, roles: string[]) => void;
+  logout: () => void;
+}
 
-export function AuthProvider({
+const AuthContext = createContext<UserAuthContextType | undefined>(undefined);
+
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   children,
-  initialRole = "PUBLIC",
-}: AuthProviderProps) {
-  const [role, setRole] = useState<UserRole>(initialRole);
-  const [keys, setKeys] = useState<Record<UserRole, string>>({});
-
-  const setAuth = (newRole: UserRole, newKeys: Record<UserRole, string>) => {
-    setRole(newRole);
-    setKeys(newKeys);
-  };
-
-  const getRoleKey = (targetRole: UserRole): string | null => {
-    return keys[targetRole] || null;
-  };
-
-  const hasRole = (allowedRoles: UserRole[]) => {
-    if (allowedRoles.includes("PUBLIC")) return true;
-    return allowedRoles.includes(role);
-  };
-
+}) => {
   if (!window.React) window.React = React;
+
+  const [token, setToken] = useState<string | null>(() => {
+    return localStorage.getItem("@react-auth/token");
+  });
+
+  const [userRoles, setUserRoles] = useState<string[]>(() => {
+    const savedRoles = localStorage.getItem("@react-auth/roles");
+    return savedRoles ? JSON.parse(savedRoles) : [];
+  });
+
+  const login = (newToken: string, roles: string[]) => {
+    setToken(newToken);
+    setUserRoles(roles);
+    localStorage.setItem("@react-auth/token", newToken);
+    localStorage.setItem("@react-auth/roles", JSON.stringify(roles));
+  };
+
+  const logout = () => {
+    setToken(null);
+    setUserRoles([]);
+    localStorage.removeItem("@react-auth/token");
+    localStorage.removeItem("@react-auth/roles");
+  };
 
   return (
     <AuthContext.Provider
-      value={{ role, setRole, keys, setKeys, setAuth, getRoleKey, hasRole }}
+      value={{
+        token,
+        userRoles,
+        isAuthenticated: !!token,
+        login,
+        logout,
+      }}
     >
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
-export const useAuth = (): AuthContextType => {
+export const useAuth = (): UserAuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth deve ser utilizado dentro de um <AuthProvider>");
+    throw new Error(
+      "useAuth deve ser utilizado obrigatoriamente dentro de um <AuthProvider>",
+    );
   }
   return context;
 };
