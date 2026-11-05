@@ -4,6 +4,8 @@ import { Command } from "commander";
 import { compileCommand } from "./commands/compile.js";
 import { initCommand } from "./commands/init.js";
 import { secureBuildCommand } from "./commands/secureBuild.js";
+import { startServerCommand } from "./commands/startServer.js";
+import { installServerCommand } from "./commands/installServer.js";
 
 const program = new Command();
 
@@ -40,20 +42,36 @@ program
 program
   .command("secure-build")
   .description(
-    "Criptografa os chunks estáticos gerados no build e remove os JS brutos",
+    "Compila os módulos protegidos e gera o servidor em server/index.js",
   )
-  .option(
-    "-b, --build-dir <dir>",
-    "Diretório dos arquivos estáticos de build",
-    "build/static/js",
-  )
-  .option(
-    "-i, --input <path>",
-    "Arquivo de política DSL (.auth)",
-    "security.auth",
-  )
-  .action((options) => {
-    secureBuildCommand(options.buildDir, options.input);
+  .option("-d, --dsl <path>", "Caminho do arquivo DSL", "security.auth")
+  .option("-o, --out <dir>", "Diretório de saída do servidor", "server")
+  .action(async (options) => {
+    await secureBuildCommand({
+      dslFile: options.dsl,
+      serverDir: options.out,
+    });
   });
 
+program
+  .command("start")
+  .description("Inicia o servidor RBAC gerado no build")
+  .option("-o, --out <dir>", "Diretório do servidor", "server")
+  .action((options) => {
+    startServerCommand({
+      serverDir: options.out,
+    });
+  });
+
+program
+  .command("install")
+  .description(
+    "Instala as dependências (npm install) na pasta do servidor gerado",
+  )
+  .option("-o, --out <dir>", "Diretório do servidor", "server")
+  .action((options) => {
+    installServerCommand({
+      serverDir: options.out,
+    });
+  });
 program.parse(process.argv);
